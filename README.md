@@ -1,0 +1,1 @@
+Code implementing a discrete version, supported on the first $k\geq 3$ positive integers, of the continuous logit-normal distribution, a relatively uncommon distribution on the unit interval that can model various shapes of the probability density function.
