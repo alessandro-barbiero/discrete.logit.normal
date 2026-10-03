@@ -561,14 +561,18 @@ ddiscreteLN_pmf <- Vectorize(function(x, k, mu, log.sigma2,log=FALSE) {
 
 mle_fit <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2,k=5),     ## specify the distribution of the response y
                 data=data,                                 ## need to specify as data frame
-                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),  ## linear model for eta and gamma
+                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),
+                               log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),
+                ## linear model for mu and log.sigma2
                 start=list(mu=0,log.sigma2=0))
 summary(mle_fit)
 AIC(mle_fit)
 
-mle_fit_red <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2,k=5),     ## specify the distribution of the response y
+mle_fit_red <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2,k=5),  ## specify the distribution of the response y
                 data=data,                                 ## need to specify as data frame
-                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL),log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)),  ## linear model for eta and gamma
+                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL),
+                                log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)),
+                ## linear model for mu and log.sigma2
                 start=list(mu=0,log.sigma2=0))
 summary(mle_fit_red)
 AIC(mle_fit_red)
@@ -599,9 +603,11 @@ ddiscreteLN_pmf <- Vectorize(function(x, k, mu, log.sigma2,log=FALSE) {
   return(ifelse(log==FALSE, p, log(p)))
 })
 
-mle_fit <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2,k=5),       ## specify the distribution of the response y
-                data=data,                                 ## need to specify as data frame
-                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),  ## linear model for eta and gamma
+mle_fit <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2,k=5), ## specify the distribution of the response y
+                data=data,                            ## need to specify as data frame
+                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),
+                                log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),
+                ## linear model for mu and log.sigma2
                 start=list(mu=0,log.sigma2=0))
 summary(mle_fit)
 AIC(mle_fit)
@@ -652,27 +658,33 @@ legend(0,0.3, legend=c("dLN","CUB"), col=c("black","red"),pch=c(16,13),bty="n")
 box()
 par(op)
 
-mle_fit_4c <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2, k=5),     ## specify the distribution of the response y
+mle_fit_4c <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2, k=5),  ## specify the distribution of the response y
                 data=data,                                 ## need to specify as data frame
-                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),  ## linear model for eta and gamma
+                parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),
+                                log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),
+                ## linear model for mu and log.sigma2
                 start=list(mu=0,log.sigma2=0))
 summary(mle_fit_4c)
 AIC(mle_fit_4c)
 
-mle_fit_4c_red <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2, k=5),     ## specify the distribution of the response y
+mle_fit_4c_red <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2, k=5), ## specify the distribution of the response y
                    data=data,                                 ## need to specify as data frame
-                   parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL),log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)),  ## linear model for eta and gamma
+                   parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL),
+                  log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)), 
+                  ## linear model for mu and log.sigma2
                    start=list(mu=0,log.sigma2=0))
 summary(mle_fit_4c_red)
 AIC(mle_fit_4c_red)
 
-# senza unlist, funziona ancora
-mle_fit_4c <- mle2(y~ddiscreteLN_pmf(eta,delta,k=max(y)),     ## specify the distribution of the response y
+# without unlist, it still works
+mle_fit_4c <- mle2(y~ddiscreteLN_pmf(eta,delta,k=max(y)),  ## specify the distribution of the response y
                 data=data,                                 ## need to specify as data frame
-                parameters=list(eta~SEX+AGE+URBRURAL+EDU+INC,delta~SEX+AGE+URBRURAL+EDU+INC),  ## linear model for eta and gamma
+                parameters=list(eta~SEX+AGE+URBRURAL+EDU+INC,delta~SEX+AGE+URBRURAL+EDU+INC),
+                ## linear model for mu and log.sigma2
                 start=list(eta=0,delta=0))
 summary(mle_fit_4c)
-AIC(mle_fit)
+AIC(mle_fit_4c)
+
 res <- est.dLN(y, method="ML")
 p <- ddlogitnorm(res@coef[1], res@coef[2], k=max(y))
 AIC(res)
@@ -696,18 +708,21 @@ data$INC<- fct_collapse(
   "medium-low" = c(1,2),
   "medium-high"=c(3,4)
 )
-mle_fit_4c <- mle2(y~ddiscreteLN_pmf(mu,log.sigma,k=5),     ## specify the distribution of the response y
-                   data=data,                                 ## need to specify as data frame
-                   parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),log.sigma~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),  ## linear model for eta and gamma
+mle_fit_4c <- mle2(y~ddiscreteLN_pmf(mu,log.sigma,k=5), ## specify the distribution of the response y
+                   data=data,                           ## need to specify as data frame
+                   parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),
+                                   log.sigma~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),
+                   ## linear model for mu and log.sigma
                    start=list(mu=0,log.sigma=0))
 summary(mle_fit_4c)
 
 # If I want to use sigma^2 (or log(sigma^2)) as the second parameter
 # p-values, ell.max, AIC and BIC will not change
-mle_fit_4c <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2/2,k=5),       ## specify the distribution of the response y
+mle_fit_4c <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2/2,k=5), ## specify the distribution of the response y
                 data=data,                                 ## need to specify as data frame
                 parameters=list(mu~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC),
-                                log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)),  ## linear model for eta and gamma
+                                log.sigma2~unlist(SEX)+unlist(AGE)+unlist(URBRURAL)+unlist(EDU)+unlist(INC)), 
+                ## linear model for mu and log.sigma2
                 start=list(mu=0,log.sigma2=0))
 summary(mle_fit_4c)
 
@@ -722,7 +737,9 @@ library(mvtnorm)
 FBLN <- function(x, y, mu1, sigma2.1, mu2, sigma2.2, rho)
 {
 sigma <- matrix(c(1, rho, rho, 1), 2, 2)
-pmvnorm(lower=c(-Inf,-Inf), upper=c(qnorm(plogitnorm(x,mu1,sqrt(sigma2.1))), qnorm(plogitnorm(y,mu2,sqrt(sigma2.2)))), mean=c(0,0), sigma=sigma)
+pmvnorm(lower=c(-Inf,-Inf), upper=c(qnorm(plogitnorm(x,mu1,sqrt(sigma2.1))),
+                                    qnorm(plogitnorm(y,mu2,sqrt(sigma2.2)))),
+                                    mean=c(0,0), sigma=sigma)
 }
 # joint cdf for the bivariate discrete logit-normal rv
 FdBLN <- function(i, j, mu1=0, sigma2.1=1, mu2=0, sigma2.2=1 ,rho=0, k=5)
@@ -745,7 +762,7 @@ pmf <- outer(1:5, 1:5, Vectorize(function(x,y) ddBLN(x, y, rho=.4)))
 plot.pmf(pmf)
 pmf <- outer(1:5, 1:5, Vectorize(function(x,y) ddBLN(x, y, mu1=-1, mu2=1, rho=.4)))
 plot.pmf(pmf)
-# log-likelihood function (old version, based on sample (x,y))
+# log-likelihood function (old version, based on the sample (x,y))
 log.lik.dBLN.old <- function(mu1, sigma2.1, mu2, sigma2.2, rho, k=5, x, y)
 {
   neg.ell <- -sum(log(mapply(function(x, y) ddBLN(x, y, mu1, sigma2.1, mu2, sigma2.2, rho, k), x, y)))
@@ -795,7 +812,6 @@ tab <- subset(tab, Freq > 0)
 x.c <- as.integer(as.character(tab$x))
 y.c <- as.integer(as.character(tab$y))
 n.c <- tab$Freq
-t1 <- Sys.time()
 res.biv <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(data)[1,2]),
                 fixed=list(k=5), data= list(
                   x.cell = x.c,
@@ -806,11 +822,23 @@ res.biv <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rh
                 lower=c(mu1=-Inf, sigma2.1=1e-4, mu2=-Inf, sigma2.2=1e-4, rho=-1),
                 upper=c(mu1=Inf, sigma2.1=Inf, mu2=Inf, sigma2.2=Inf, rho=1),
      control=list(trace=TRUE))
-t2 <- Sys.time()
-t2-t1 # it takes few seconds
 summary(res.biv)
 AIC(res.biv)
-BIC(res.biv)
+# in case of independence
+res.biv.indep <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(data)[1,2]),
+                fixed=list(k=5, rho=0), data= list(
+                  x.cell = x.c,
+                  y.cell = y.c,
+                  n.cell = n.c
+                ),
+                method="L-BFGS-B",
+                lower=c(mu1=-Inf, sigma2.1=1e-4, mu2=-Inf, sigma2.2=1e-4, rho=-1),
+                upper=c(mu1=Inf, sigma2.1=Inf, mu2=Inf, sigma2.2=Inf, rho=1),
+                control=list(trace=TRUE))
+summary(res.biv.indep)
+AIC(res.biv.indep)
+
+
 # joint relative frequencies
 fij <- table(x,y)/length(x)
 # joint probabilities for the bivariate discrete logit-normal model
@@ -848,21 +876,23 @@ x.c <- as.integer(as.character(tab.b$x))
 y.c <- as.integer(as.character(tab.b$y))
 n.c <- tab.b$Freq
 
-res.biv.b <- mle2(log.lik.dBLN, start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(xb,yb)), fixed=list(k=5),
+res.biv.b <- mle2(log.lik.dBLN, start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(xb,yb)),
+                  fixed=list(k=5),
                   data  = list(
                     x.cell = x.c,
                     y.cell = y.c,
                     n.cell = n.c
                   ), method="L-BFGS-B",
-                  lower=c(mu1=-Inf, sigma2.1=1e-4, mu2=-Inf, sigma2.2=1e-4, rho=-1), upper=c(mu1=Inf, sigma2.1=Inf, mu2=Inf, sigma2.2=Inf, rho=1),
+                  lower=c(mu1=-Inf, sigma2.1=1e-4, mu2=-Inf, sigma2.2=1e-4, rho=-1),
+                  upper=c(mu1=Inf, sigma2.1=Inf, mu2=Inf, sigma2.2=Inf, rho=1),
                   control=list(trace=TRUE))
 pij.b <- matrix(0, 5, 5)
 for(h in 1:5)
 {
   for(k in 1:5)
   {
-    pij.b[h,k] <- ddBLN(h, k, res.biv.b@coef[1], res.biv.b@coef[2], res.biv.b@coef[3], res.biv.b@coef[4],
-                      res.biv.b@coef[5], k=5)
+    pij.b[h,k] <- ddBLN(h, k, res.biv.b@coef[1], res.biv.b@coef[2], res.biv.b@coef[3],
+                        res.biv.b@coef[4], res.biv.b@coef[5], k=5)
   }
 }
 TV[i] <- 1/2*sum(abs(pij - pij.b))
@@ -870,6 +900,253 @@ print(i)
 print(TV[i])
 }
 summary(TV)
+
+# adding the covariate AGE
+
+# The bivariatepmf, with mu1 e mu2 depending on AGE (here 0/1)
+ddBLN.AGE <- function(i, j, AGE,
+                      beta10, beta11, sigma2.1,
+                      beta20, beta21, sigma2.2,
+                      rho, k = 5) {
+  
+  ddBLN(
+    i = i, j = j,
+    mu1 = beta10 + beta11 * AGE,
+    sigma2.1 = sigma2.1,
+    mu2 = beta20 + beta21 * AGE,
+    sigma2.2 = sigma2.2,
+    rho = rho, k = k
+  )
+}
+
+
+# (negative) log-likelihood
+log.lik.dBLN.AGE <- function(
+    beta10, beta11, sigma2.1,
+    beta20, beta21, sigma2.2,
+    rho, k = 5, x.cell, y.cell, age.cell, n.cell) {
+  
+  p <- mapply(
+    function(xi, yi, ai)
+      ddBLN.AGE(
+        i = xi, j = yi, AGE = ai,
+        beta10 = beta10, beta11 = beta11,
+        sigma2.1 = sigma2.1,
+        beta20 = beta20, beta21 = beta21,
+        sigma2.2 = sigma2.2,
+        rho = rho, k = k
+      ),
+    x.cell, y.cell, age.cell
+  )
+  
+  if (any(!is.finite(p)) || any(p <= 0))
+    return(1e100)
+  
+  -sum(n.cell * log(p))
+}
+
+
+# data
+data <- dataframe[
+  which(dataframe$c_alphan == "DK"),
+  c("v2", "v6", "AGE")
+]
+# data as factor
+data$AGE <- factor(ifelse(data$AGE <= 60, 0, 1))
+# only complete data
+data <- data[
+  complete.cases(data) &
+    data$v2 %in% 1:5 &
+    data$v6 %in% 1:5,
+]
+# frequencies also stratified by AGE
+tab <- as.data.frame(
+  table(
+    x = factor(data$v2, levels = 1:5),
+    y = factor(data$v6, levels = 1:5),
+    AGE = factor(data$AGE, levels = 0:1)
+  )
+)
+
+tab <- subset(tab, Freq > 0)
+
+x.c   <- as.integer(as.character(tab$x))
+y.c   <- as.integer(as.character(tab$y))
+age.c <- as.integer(as.character(tab$AGE))
+n.c   <- tab$Freq
+
+# Estimation
+res.biv.age <- mle2(
+  log.lik.dBLN.AGE,
+  start = list(
+    beta10 = -0.633, beta11 = 0, sigma2.1 = 0.365,
+    beta20 =  0.933, beta21 = 0, sigma2.2 = 2.142,
+    rho = -0.423
+  ),
+  fixed = list(k = 5),
+  data = list(
+    x.cell = x.c,
+    y.cell = y.c,
+    age.cell = age.c,
+    n.cell = n.c
+  ),
+  method = "L-BFGS-B",
+  lower = c(
+    beta10 = -Inf, beta11 = -Inf, sigma2.1 = 1e-4,
+    beta20 = -Inf, beta21 = -Inf, sigma2.2 = 1e-4,
+    rho = -0.999
+  ),
+  upper = c(
+    beta10 = Inf, beta11 = Inf, sigma2.1 = Inf,
+    beta20 = Inf, beta21 = Inf, sigma2.2 = Inf,
+    rho = 0.999
+  ),
+  control = list(trace = TRUE, maxit = 2000)
+)
+
+summary(res.biv.age)
+AIC(res.biv.age)
+
+# diagnostics
+
+tab.fit <- as.data.frame(
+  table(
+    x = factor(data$v2, levels = 1:5),
+    y = factor(data$v6, levels = 1:5),
+    AGE = factor(data$AGE, levels = 0:1)
+  )
+)
+
+tab.fit$x   <- as.integer(as.character(tab.fit$x))
+tab.fit$y   <- as.integer(as.character(tab.fit$y))
+tab.fit$AGE <- as.integer(as.character(tab.fit$AGE))
+
+b <- coef(res.biv.age)
+
+tab.fit$p <- mapply(
+  function(xi, yi, ai)
+    ddBLN.AGE(
+      i = xi, j = yi, AGE = ai,
+      beta10 = b[["beta10"]],
+      beta11 = b[["beta11"]],
+      sigma2.1 = b[["sigma2.1"]],
+      beta20 = b[["beta20"]],
+      beta21 = b[["beta21"]],
+      sigma2.2 = b[["sigma2.2"]],
+      rho = b[["rho"]],
+      k = 5
+    ),
+  tab.fit$x, tab.fit$y, tab.fit$AGE
+)
+
+# Size of the corresponding AGE group
+tab.fit$n <- ave(tab.fit$Freq, tab.fit$AGE, FUN = sum)
+
+tab.fit$expected <- tab.fit$n * tab.fit$p
+tab.fit$observed.p <- tab.fit$Freq / tab.fit$n
+
+# Numerical check: probabilities must sum up to 1
+aggregate(p ~ AGE, data = tab.fit, FUN = sum)
+
+
+tab.fit$diff <- tab.fit$Freq - tab.fit$expected
+
+tab.fit$resid.pearson <- with(
+  tab.fit,
+  (Freq - expected) / sqrt(expected)
+)
+
+# Cells with largest residuals in absolute value
+head(
+  tab.fit[
+    order(abs(tab.fit$resid.pearson), decreasing = TRUE),
+    c("AGE", "x", "y", "Freq", "expected", "diff", "resid.pearson")
+  ],
+  12
+)
+
+# checking the margins across the two groups
+aggregate(cbind(Freq, expected) ~ AGE + x, data = tab.fit, sum)
+aggregate(cbind(Freq, expected) ~ AGE + y, data = tab.fit, sum)
+
+
+# joint continuous cdf for the bivariate continuous logit-normal rv
+# with Student's t copula
+FBLNt <- function(x, y, mu1, sigma2.1, mu2, sigma2.2, rho, nu)
+{
+  sigma <- matrix(c(1, rho, rho, 1), 2, 2)
+  pmvt(lower=c(-Inf,-Inf), upper=c(qt(plogitnorm(x,mu1,sqrt(sigma2.1)),nu),
+                                   qt(plogitnorm(y,mu2,sqrt(sigma2.2)),nu)),
+       delta=c(0,0), df=nu, corr=sigma)
+}
+# joint cdf for the bivariate discrete logit-normal rv
+FdBLNt <- function(i, j, mu1=0, sigma2.1=1, mu2=0, sigma2.2=1 ,rho=0, nu=Inf, k=5)
+{
+  i <- floor(i); j<- floor(j)
+  ifelse(i>=0 & j>=0,FBLNt(i/k, j/k, mu1, sigma2.1, mu2, sigma2.2, rho, nu), 0)
+}
+# joint pmf for the bivariate discrete logit-normal rv
+ddBLNt <- function(i, j, mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=0, nu=Inf, k=5)
+{
+  FdBLNt(i, j, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)+
+    FdBLNt(i-1, j-1, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)-
+    FdBLNt(i-1, j, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)-
+    FdBLNt(i, j-1, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)
+}
+# log-likelihood function for the bivariate discrete logit-normal
+# x.cell and y.cell denote the distinct observed category pairs
+# n.cell denotes their corresponding counts
+log.lik.dBLN <- function(mu1, sigma2.1, mu2, sigma2.2, rho, nu, k = 5, x.cell, y.cell, n.cell) {
+  p <- mapply(
+    function(xi, yi)
+      ddBLNt(xi, yi, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k),
+    x.cell, y.cell
+  )
+  if (any(!is.finite(p)) || any(p <= 0))
+    return(sum(n.cell)^2)
+  
+  -sum(n.cell * log(p))
+}
+# data analysis using ISSP2021
+data <- dataframe[dataframe$c_alphan=="DK",] 
+data <- data[,c("v2","v6")]
+data <- data[apply(data >= 0, 1, all), ]
+data
+x <- data[,1]
+y <- data[,2]
+tab <- as.data.frame(
+  table(x = factor(x, levels = 1:5),
+        y = factor(y, levels = 1:5))
+)
+tab <- subset(tab, Freq > 0)
+x.c <- as.integer(as.character(tab$x))
+y.c <- as.integer(as.character(tab$y))
+n.c <- tab$Freq
+# nu = 6
+res.biv <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(data)[1,2], nu=5),
+                fixed=list(k=5,nu=6), data= list(
+                  x.cell = x.c,
+                  y.cell = y.c,
+                  n.cell = n.c
+                ),
+                method="L-BFGS-B",
+                lower=c(mu1=-Inf, sigma2.1=1e-4, mu2=-Inf, sigma2.2=1e-4, rho=-1,nu=0.1),
+                upper=c(mu1=Inf, sigma2.1=Inf, mu2=Inf, sigma2.2=Inf, rho=1, nu=Inf),
+                control=list(trace=TRUE))
+summary(res.biv)
+AIC(res.biv)
+pij <- matrix(0, 5, 5)
+for(h in 1:5)
+{
+  for(k in 1:5)
+  {
+    pij[h,k] <- ddBLNt(h, k, res.biv@coef[1], res.biv@coef[2], res.biv@coef[3],
+                       res.biv@coef[4], res.biv@coef[5], nu=6, k=5)
+  }
+}
+1/2*sum(abs(pij - fij))
+
+
 
 ############################################################
 ###### J O I N T   G R A P H   O F    E   A N D   V  #######
