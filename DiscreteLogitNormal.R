@@ -869,7 +869,7 @@ pij
 library(copula)
 set.seed(12345)
 n <- length(x)
-B <- 100
+B <- 1000
 TV <- numeric(B)
 for(i in 1:B)
 {
