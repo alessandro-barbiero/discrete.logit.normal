@@ -799,10 +799,21 @@ n.c <- tab$Freq
 log.lik.dBLN(0,1,0,1,0,k=5,x.c,y.c,n.c)
 
 # data analysis using ISSP2021
+# possibly considering the covariate AGE
 data <- dataframe[dataframe$c_alphan=="DK",] 
-data <- data[,c("v2","v6")]
+data <- data[,c("v2","v6","AGE")]
 data <- data[apply(data >= 0, 1, all), ]
 data
+# only complete data
+data <- data[
+  complete.cases(data) &
+    data$v2 %in% 1:5 &
+    data$v6 %in% 1:5 &
+    data$AGE>0,
+]
+# data as factor
+data$AGE <- factor(ifelse(data$AGE <= 60, 0, 1))
+# BIVARIATE ANALYSIS WITHOUT COVARIATE
 x <- data[,1]
 y <- data[,2]
 tab <- as.data.frame(
@@ -813,7 +824,7 @@ tab <- subset(tab, Freq > 0)
 x.c <- as.integer(as.character(tab$x))
 y.c <- as.integer(as.character(tab$y))
 n.c <- tab$Freq
-res.biv <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(data)[1,2]),
+res.biv <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(x,y)),
                 fixed=list(k=5), data= list(
                   x.cell = x.c,
                   y.cell = y.c,
@@ -826,7 +837,7 @@ res.biv <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rh
 summary(res.biv)
 AIC(res.biv)
 # in case of independence
-res.biv.indep <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(data)[1,2]),
+res.biv.indep <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(x,y)),
                 fixed=list(k=5, rho=0), data= list(
                   x.cell = x.c,
                   y.cell = y.c,
@@ -858,7 +869,7 @@ pij
 library(copula)
 set.seed(12345)
 n <- length(x)
-B <- 1000
+B <- 100
 TV <- numeric(B)
 for(i in 1:B)
 {
@@ -902,6 +913,7 @@ print(TV[i])
 }
 summary(TV)
 
+# BIVARIATE ANALYSIS WITHOUT COVARIATE
 # adding the covariate AGE
 
 # The bivariate pmf, with mu1 e mu2 depending on AGE (here 0/1)
@@ -946,22 +958,6 @@ log.lik.dBLN.AGE <- function(
   -sum(n.cell * log(p))
 }
 
-
-# data
-data <- dataframe[
-  which(dataframe$c_alphan == "DK"),
-  c("v2", "v6", "AGE")
-]
-
-# only complete data
-data <- data[
-  complete.cases(data) &
-    data$v2 %in% 1:5 &
-    data$v6 %in% 1:5 &
-    data$AGE>0,
-]
-# data as factor
-data$AGE <- factor(ifelse(data$AGE <= 60, 0, 1))
 # frequencies also stratified by AGE
 tab <- as.data.frame(
   table(
@@ -1011,7 +1007,6 @@ summary(res.biv.age)
 AIC(res.biv.age)
 
 # diagnostics
-
 tab.fit <- as.data.frame(
   table(
     x = factor(data$v2, levels = 1:5),
