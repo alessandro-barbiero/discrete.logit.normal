@@ -438,10 +438,11 @@ X2 <- factor(dataset[[2]],levels=c("Democrat","Independent","Libertarian","Repub
 X <- data.frame(X1,X2)
 # in y the dependent variable, which we assume to follow the discrete LN distribution
 # in X the covariates
-mle_fit <- mle2(y~ddiscreteLN_pmf(eta,delta,k=max(y)),     ## specify the distribution of the response y
+mle_fit <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2,k=max(y)), ## specify the distribution of the response y
                 data=data.frame(y,X),                      ## need to specify as data frame
-                parameters=list(eta~unlist(X1)+unlist(X2),delta~unlist(X1)+unlist(X2)),  ## linear model for eta and gamma
-                start=list(eta=0,delta=0))
+                parameters=list(mu~unlist(X1)+unlist(X2),log.sigma2~unlist(X1)+unlist(X2)),
+                ## linear model for mu and log.sigma2
+                start=list(mu=0,log.sigma2=0))
 summary(mle_fit) # OK
 
 # NEW! Collapsing categories
@@ -483,7 +484,7 @@ X <- data.frame(X1,X2)
 mle_U_fit <- mle2(y~ddiscreteLN_pmf(mu, log.sigma2, k=max(y)),## specify the distribution of the response y
                 data=data.frame(y,X),                      ## need to specify as data frame
                 parameters=list(mu~unlist(X1)+unlist(X2),log.sigma2~unlist(X1)+unlist(X2)),
-                ## linear model for eta and gamma
+                ## linear model for mu and log.sigma2
                 start=list(mu=0, log.sigma2=0))
 summary(mle_U_fit) # OK
 AIC(mle_U_fit)
@@ -677,11 +678,11 @@ summary(mle_fit_4c_red)
 AIC(mle_fit_4c_red)
 
 # without unlist, it still works
-mle_fit_4c <- mle2(y~ddiscreteLN_pmf(eta,delta,k=max(y)),  ## specify the distribution of the response y
+mle_fit_4c <- mle2(y~ddiscreteLN_pmf(mu,log.sigma2,k=max(y)),  ## specify the distribution of the response y
                 data=data,                                 ## need to specify as data frame
-                parameters=list(eta~SEX+AGE+URBRURAL+EDU+INC,delta~SEX+AGE+URBRURAL+EDU+INC),
+                parameters=list(mu~SEX+AGE+URBRURAL+EDU+INC,log.sigma2~SEX+AGE+URBRURAL+EDU+INC),
                 ## linear model for mu and log.sigma2
-                start=list(eta=0,delta=0))
+                start=list(mu=0,log.sigma2=0))
 summary(mle_fit_4c)
 AIC(mle_fit_4c)
 
@@ -903,7 +904,7 @@ summary(TV)
 
 # adding the covariate AGE
 
-# The bivariatepmf, with mu1 e mu2 depending on AGE (here 0/1)
+# The bivariate pmf, with mu1 e mu2 depending on AGE (here 0/1)
 ddBLN.AGE <- function(i, j, AGE,
                       beta10, beta11, sigma2.1,
                       beta20, beta21, sigma2.2,
