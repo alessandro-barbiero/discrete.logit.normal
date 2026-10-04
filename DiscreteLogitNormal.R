@@ -538,7 +538,13 @@ points(1:5+seq(-0.3,0.6,0.2), pcub, type="b", pch=13, col="red")
 legend(5.5,0.3, legend=c("dLN","CUB"), col=c("black","red"),pch=c(16,13),bty="n")
 box()
 par(op)
+# CUBE and CUB+shelter
+resCUBE <- GEM(Formula(y~0|0|0), family="cube")
+summary(resCUBE)
+resCUBs <- GEM(Formula(y~0|0|0), family="cub", shelter=2)
+summary(resCUBs)
 
+# introducing covariates
 data <- dataframe[dataframe$c_alphan=="DK",]
 data <- data[,c("v2","SEX","AGE","URBRURAL","DK_ISCD","DK_INC")] # attention to the country selected! IT or DK
 data <- na.omit(data)
