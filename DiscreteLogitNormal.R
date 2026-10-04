@@ -952,14 +952,16 @@ data <- dataframe[
   which(dataframe$c_alphan == "DK"),
   c("v2", "v6", "AGE")
 ]
-# data as factor
-data$AGE <- factor(ifelse(data$AGE <= 60, 0, 1))
+
 # only complete data
 data <- data[
   complete.cases(data) &
     data$v2 %in% 1:5 &
-    data$v6 %in% 1:5,
+    data$v6 %in% 1:5 &
+    data$AGE>0,
 ]
+# data as factor
+data$AGE <- factor(ifelse(data$AGE <= 60, 0, 1))
 # frequencies also stratified by AGE
 tab <- as.data.frame(
   table(
@@ -1069,85 +1071,6 @@ head(
 # checking the margins across the two groups
 aggregate(cbind(Freq, expected) ~ AGE + x, data = tab.fit, sum)
 aggregate(cbind(Freq, expected) ~ AGE + y, data = tab.fit, sum)
-
-
-# joint continuous cdf for the bivariate continuous logit-normal rv
-# with Student's t copula
-FBLNt <- function(x, y, mu1, sigma2.1, mu2, sigma2.2, rho, nu)
-{
-  sigma <- matrix(c(1, rho, rho, 1), 2, 2)
-  pmvt(lower=c(-Inf,-Inf), upper=c(qt(plogitnorm(x,mu1,sqrt(sigma2.1)),nu),
-                                   qt(plogitnorm(y,mu2,sqrt(sigma2.2)),nu)),
-       delta=c(0,0), df=nu, corr=sigma)
-}
-# joint cdf for the bivariate discrete logit-normal rv
-FdBLNt <- function(i, j, mu1=0, sigma2.1=1, mu2=0, sigma2.2=1 ,rho=0, nu=Inf, k=5)
-{
-  i <- floor(i); j<- floor(j)
-  ifelse(i>=0 & j>=0,FBLNt(i/k, j/k, mu1, sigma2.1, mu2, sigma2.2, rho, nu), 0)
-}
-# joint pmf for the bivariate discrete logit-normal rv
-ddBLNt <- function(i, j, mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=0, nu=Inf, k=5)
-{
-  FdBLNt(i, j, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)+
-    FdBLNt(i-1, j-1, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)-
-    FdBLNt(i-1, j, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)-
-    FdBLNt(i, j-1, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k)
-}
-# log-likelihood function for the bivariate discrete logit-normal
-# x.cell and y.cell denote the distinct observed category pairs
-# n.cell denotes their corresponding counts
-log.lik.dBLN <- function(mu1, sigma2.1, mu2, sigma2.2, rho, nu, k = 5, x.cell, y.cell, n.cell) {
-  p <- mapply(
-    function(xi, yi)
-      ddBLNt(xi, yi, mu1, sigma2.1, mu2, sigma2.2, rho, nu, k),
-    x.cell, y.cell
-  )
-  if (any(!is.finite(p)) || any(p <= 0))
-    return(sum(n.cell)^2)
-  
-  -sum(n.cell * log(p))
-}
-# data analysis using ISSP2021
-data <- dataframe[dataframe$c_alphan=="DK",] 
-data <- data[,c("v2","v6")]
-data <- data[apply(data >= 0, 1, all), ]
-data
-x <- data[,1]
-y <- data[,2]
-tab <- as.data.frame(
-  table(x = factor(x, levels = 1:5),
-        y = factor(y, levels = 1:5))
-)
-tab <- subset(tab, Freq > 0)
-x.c <- as.integer(as.character(tab$x))
-y.c <- as.integer(as.character(tab$y))
-n.c <- tab$Freq
-# nu = 6
-res.biv <- mle2(log.lik.dBLN,start=list(mu1=0, sigma2.1=1, mu2=0, sigma2.2=1, rho=cor(data)[1,2], nu=5),
-                fixed=list(k=5,nu=6), data= list(
-                  x.cell = x.c,
-                  y.cell = y.c,
-                  n.cell = n.c
-                ),
-                method="L-BFGS-B",
-                lower=c(mu1=-Inf, sigma2.1=1e-4, mu2=-Inf, sigma2.2=1e-4, rho=-1,nu=0.1),
-                upper=c(mu1=Inf, sigma2.1=Inf, mu2=Inf, sigma2.2=Inf, rho=1, nu=Inf),
-                control=list(trace=TRUE))
-summary(res.biv)
-AIC(res.biv)
-pij <- matrix(0, 5, 5)
-for(h in 1:5)
-{
-  for(k in 1:5)
-  {
-    pij[h,k] <- ddBLNt(h, k, res.biv@coef[1], res.biv@coef[2], res.biv@coef[3],
-                       res.biv@coef[4], res.biv@coef[5], nu=6, k=5)
-  }
-}
-1/2*sum(abs(pij - fij))
-
-
 
 ############################################################
 ###### J O I N T   G R A P H   O F    E   A N D   V  #######
